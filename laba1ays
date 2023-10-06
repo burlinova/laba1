@@ -1,0 +1,84 @@
+import json
+
+class MenuError(Exception):
+    def __init__(self,name):
+        self.name=name
+    def __str__(self):
+        return print(f'Блюда под названием {self.name} нет в наличии.')
+
+drinks = ['beer', 'lemonade', 'tea', 'coffee']
+food = ['pasta', 'tom yam', 'meat', 'vegetable']
+
+class Menu:
+    def __init__(self, price, size, name):
+        self.price=price
+        self.size=size
+        self.name=name
+    def sale(self):
+        if self.price>1500:
+            self.price=self.price-(self.price*0.1)
+            return print(f"У вас скидка 10%! Итоговая стоимость: {self.price}")
+        else:
+            return self.price
+class Drinks(Menu):
+    def unhaving(self):
+        if not self.name in drinks:
+            raise MenuError(self.name)
+    def beer(self):
+        if self.name=="beer":
+            return print(
+                'При заказе двух кужек пива, '
+                'третья в подарок!'
+            )
+class Food(Menu):
+    def __init__(
+        self, price, size,name, ingredients
+        ):
+        super().__init__(price,size,name)
+        self.ingredients=ingredients
+    def unhaving(self):
+        if not self.name in food:
+            raise MenuError(self.name)
+    def tom_yam(self):
+        if self.name=="tom yam":
+            print("Тарелка риса в подарок!")
+
+menu_data = [
+    Drinks(250, 'big', 'beer'),
+    Food(400, 'big', 'tom yam', 'seafood')
+]
+
+json_data = []
+for menu in menu_data:
+    json_data.append({
+         'type': menu.__class__.__name__,
+         'price': menu.price,
+         'size': menu.size,
+         'name': menu.name
+     })
+
+with open('data.json', 'w') as json_file:
+    json.dump(json_data, json_file, indent=4)
+
+
+
+try:
+    with open('data.json', 'r') as json_file:
+        loaded_data = json.load(json_file)
+except FileNotFoundError:
+    print('Файл data.json не найден.')
+except json.JSONDecodeError:
+    print('Ошибка при чтении данных из файла data.json')
+
+new_menu = {
+    'type': 'Drinks',
+    'price': 300,
+    'size': 'small',
+    'name': 'coffee'
+}
+
+loaded_data.append(new_menu)
+
+with open('data.json', 'w') as json_file:
+    json.dump(loaded_data, json_file, indent=4)
+
